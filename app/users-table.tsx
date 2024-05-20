@@ -9,15 +9,16 @@ import {
   Table
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { SelectUser } from '@/lib/db';
-import { deleteUser } from './actions';
+import { SelectPermission } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { format } from 'date-fns'; // Importar la función format de date-fns
 
-export function UsersTable({
-  users,
+export function PermissionsTable({
+  permissions,
   offset
 }: {
-  users: SelectUser[];
+  permissions: SelectPermission[];
   offset: number | null;
 }) {
   const router = useRouter();
@@ -32,15 +33,15 @@ export function UsersTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-[150px]">Name</TableHead>
-              <TableHead className="hidden md:table-cell">Email</TableHead>
-              <TableHead className="hidden md:table-cell">Username</TableHead>
+              <TableHead className="max-w-[150px]">Nombre Completo</TableHead>
+              <TableHead className="hidden md:table-cell">Tipo De Permiso</TableHead>
+              <TableHead className="hidden md:table-cell">Fecha Del Permiso</TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
-              <UserRow key={user.id} user={user} />
+            {permissions.map((permission) => (
+              <PermissionRow key={permission.id} permission={permission} />
             ))}
           </TableBody>
         </Table>
@@ -58,25 +59,25 @@ export function UsersTable({
   );
 }
 
-function UserRow({ user }: { user: SelectUser }) {
-  const userId = user.id;
-  const deleteUserWithId = deleteUser.bind(null, userId);
+function PermissionRow({ permission }: { permission: SelectPermission }) {
+  const permissionId = permission.id;
+  const formattedDate = format(new Date(permission.permissionDate), 'dd/MM/yyyy'); // Formatear la fecha
 
   return (
     <TableRow>
-      <TableCell className="font-medium">{user.name}</TableCell>
-      <TableCell className="hidden md:table-cell">{user.email}</TableCell>
-      <TableCell>{user.username}</TableCell>
+      <TableCell className="font-medium">{ `${permission.employeeForename} ${permission.employeeSurname}` }</TableCell>
+      <TableCell className="hidden md:table-cell">{permission.permissionType.description}</TableCell>
+      <TableCell>{formattedDate}</TableCell> {/* Mostrar la fecha formateada */}
       <TableCell>
-        <Button
-          className="w-full"
-          size="sm"
-          variant="outline"
-          formAction={deleteUserWithId}
-          disabled
-        >
-          Delete
-        </Button>
+      <Link href={`/modifypermission/${permissionId}`} className="w-full">
+      <Button
+        className="w-full"
+        size="sm"
+        variant="outline"
+      >
+        Update
+      </Button>
+    </Link>
       </TableCell>
     </TableRow>
   );
